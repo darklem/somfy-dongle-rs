@@ -1,13 +1,26 @@
 [Unit]
-Description=Somfy RTS MQTT client
+Description=Somfy RTS MQTT Client
+Documentation=https://github.com/darklem/somfy-dongle-rs
 After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-User=user
-Group=user
-ExecStart=/usr/bin/somfy-rts-mqtt -s /dev/ttyACM0 plop:example.com:1883
+User=somfy-rts
+Group=somfy-rts
+
+# La configuration (SOMFY_ARGS) est lue depuis ce fichier — jamais écrasé lors d'une réinstallation.
+EnvironmentFile=/etc/somfy-rts-mqtt/config
+
+# $SOMFY_ARGS est interprété par le shell pour supporter les arguments optionnels.
+ExecStart=/bin/sh -c 'exec /usr/local/bin/somfy-rts-mqtt $SOMFY_ARGS'
+
 Restart=on-failure
+RestartSec=5s
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=somfy-rts-mqtt
 
 [Install]
 WantedBy=multi-user.target
