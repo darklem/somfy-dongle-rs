@@ -3,22 +3,22 @@ use std::{
     process::exit,
 };
 
-use clap::{Arg, ArgAction, Args, Command, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
 use somfy_rts::WireFormat;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[clap(author, version, about)]
 struct Cli {
     /// Serial port name to operate on. If none is provided, we will attemp to find one.
-    #[arg(short, long, value_name = "SERIAL PORT")]
+    #[clap(short, long, value_name = "SERIAL PORT")]
     serial: Option<String>,
 
     /// Turn debugging information on
-    #[arg(short, long, action = clap::ArgAction::Count)]
+    #[clap(short, long, action = clap::ArgAction::Count)]
     debug: u8,
 
-    #[command(subcommand)]
+    #[clap(subcommand)]
     command: Option<Commands>,
 }
 
@@ -75,12 +75,14 @@ enum Commands {
 #[derive(Args)]
 struct Blind {
     ///Id of the blind to command, from 1 to 100
+    #[clap()]
     blind: u8,
 }
 
 #[derive(Args)]
 struct BlindRange {
     ///Range of the blinds to affect; ex: 1..20
+    #[clap()]
     range: String,
 }
 
