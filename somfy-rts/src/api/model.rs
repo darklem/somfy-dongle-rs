@@ -8,7 +8,7 @@ pub enum Command {
     CmdDongle(DongleCommand),
     CmdRts(RtsCommand),
     GetAddress(u8),
-    SetAddress,
+    SetAddress(u8, u32, u16),
     ///TODO
     Led(LedColor, LedAction, u16),
     ResetAddress(u8),

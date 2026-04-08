@@ -49,7 +49,10 @@ impl Serialize for Command {
                 map.serialize_entry(ident, id)?;
             }
 
-            _ => todo!(),
+            Self::SetAddress(id, address, rolling_code) => {
+                let array = json!([id, format!("{:06X}", address), format!("{:04X}", rolling_code)]);
+                map.serialize_entry(ident, &array)?;
+            }
         }
 
         map.end()

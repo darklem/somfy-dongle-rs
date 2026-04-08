@@ -49,7 +49,7 @@ fn validate_range(arg: &str) -> Result<Box<dyn Iterator<Item = u8>>, String> {
 
         Ok(Box::new(start_bound..=end_bound))
     } else if end.is_empty() {
-        Ok(Box::new(start_bound..end_bound))
+        Ok(Box::new(start_bound..=end_bound))
     } else {
         let end_bound: u8 = end
             .parse()

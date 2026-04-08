@@ -46,6 +46,7 @@ impl<S: State> SomfyRTSDongle<S> {
         let mut buffer = BytesMut::with_capacity(1024);
 
         self.device.write_all(cmd.as_bytes()).await?;
+        self.device.write_all(b"\r\n").await?;
 
         match read::try_read_stuff(&mut self.device, &mut buffer, response).await {
             Ok(response) => Ok(response),
@@ -88,7 +89,9 @@ impl SomfyRTSDongle<Waiting> {
             Some("RTSDONGLE") => match parts.next() {
                 Some("OK") => parts.next().ok_or(missing_part),
 
-                Some("KO") | Some(&_) | None => Err(Error::Dongle("Dongle KO".to_string())),
+                Some("KO") => Err(Error::Dongle("Dongle KO".to_string())),
+                Some(status) => Err(Error::Dongle(format!("Unexpected status: {}", status))),
+                None => Err(missing_part),
             },
 
             _ => Err(missing_part),
@@ -121,7 +124,7 @@ impl SomfyRTSDongle<Ready> {
         &mut self,
         cmd: Command,
     ) -> Result<model::Response<T>, Error> {
-        let cmd = serde_json::to_string(&cmd).unwrap();
+        let cmd = serde_json::to_string(&cmd).map_err(Error::Json)?;
 
         trace!(target:"libsomfy_rts::send_command", "Sending: {}", cmd);
 
@@ -147,7 +150,10 @@ impl SomfyRTSDongle<Ready> {
 
                 Ok(model::Response::Err(message))
             }
-            _ => unreachable!(),
+            _ => Err(Error::Dongle(format!(
+                "Unexpected ACK: {}",
+                value["ACK"].as_str().unwrap_or("<missing>")
+            ))),
         }
     }
 
@@ -196,7 +202,7 @@ impl SomfyRTSDongle<Ready> {
         address: u32,
         rolling_code: u16,
     ) -> Result<super::Response<AddressVal>, Error> {
-        self.send_command(Command::SetAddress).await
+        self.send_command(Command::SetAddress(id, address, rolling_code)).await
     }
 
     pub async fn remove_blind(&mut self, id: u8) -> Result<super::Response<Empty>, Error> {

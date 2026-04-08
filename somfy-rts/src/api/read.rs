@@ -108,16 +108,15 @@ impl JsonResponse {}
 impl Response<Value> for JsonResponse {
     fn read(&mut self, cursor: &mut Cursor<&[u8]>) -> Result<Value, Error> {
         let start = cursor.position() as usize;
-        let len = cursor.get_ref().len();
 
-        let available = &cursor.get_ref()[start..start + len];
+        let available = &cursor.get_ref()[start..];
 
-        let string = std::str::from_utf8(available).unwrap();
+        let string = std::str::from_utf8(available).or(Err(Error::BadEncoding))?;
 
         match serde_json::from_str::<Value>(string) {
             Ok(v) => Ok(v),
             Err(e) if e.classify() == Category::Eof => Err(Error::Incomplete),
-            _ => unreachable!(),
+            Err(_) => Err(Error::BadEncoding),
         }
     }
 }
