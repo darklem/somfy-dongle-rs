@@ -11,19 +11,19 @@ mod ha;
 mod somfy;
 
 #[derive(Parser)]
-#[clap(author, version, about)]
+#[command(author, version, about)]
 struct Cli {
     /// Serial port name to operate on. If none is provided, we will attemp to find one.
-    #[clap(short, long, value_name = "SERIAL PORT")]
+    #[arg(short, long, value_name = "SERIAL PORT")]
     serial: Option<String>,
 
-    #[clap(value_name = "MQTT BROKER", help = "MQTT connection string in the following format: id:host:port", value_parser = mqtt_option)]
+    #[arg(value_name = "MQTT BROKER", help = "MQTT connection string in the following format: id:host:port", value_parser = mqtt_option)]
     mqtt_opt: MqttOptions,
 
-    #[clap(short, long, value_name = "MQTT USERNAME")]
+    #[arg(short, long, value_name = "MQTT USERNAME")]
     username: Option<String>,
 
-    #[clap(short, long, value_name = "MQTT PASSWORD")]
+    #[arg(short, long, value_name = "MQTT PASSWORD")]
     password: Option<String>,
 }
 

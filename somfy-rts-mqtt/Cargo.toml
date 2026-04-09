@@ -3,15 +3,14 @@ name = "somfy-rts-mqtt"
 version = "0.1.0"
 edition = "2021"
 
-# Versions épinglées exactement (=) pour garantir la compatibilité avec rustc 1.63.
 [dependencies]
-somfy-rts   = { path = "../somfy-rts" }
-anyhow      = "=1.0.70"
-clap        = { version = "=3.2.25", features = ["derive"] }
-fern        = "=0.6.2"
-futures     = "=0.3.28"
-humantime   = "=2.1.0"
-log         = "=0.4.17"
-rumqttc     = "=0.20.0"
-serde_json  = "=1.0.95"
-tokio       = { version = "=1.27.0", features = ["rt-multi-thread", "macros"] }
+somfy-rts  = { path = "../somfy-rts" }
+anyhow     = "1"
+clap       = { version = "4", features = ["derive"] }
+fern       = "0.6"
+futures    = "0.3"
+humantime  = "2"
+log        = "0.4"
+rumqttc    = "0.20"
+serde_json = "1"
+tokio      = { version = "1", features = ["rt-multi-thread", "macros"] }

@@ -33,18 +33,60 @@ for arg in "$@"; do
     [[ "$arg" == "--update" ]] && UPDATE_ONLY=true
 done
 
-if ! command -v cargo &>/dev/null; then
-    error "cargo introuvable. Installez Rust : https://rustup.rs"
-    exit 1
-fi
+MIN_RUSTC="1.70.0"
+BUILD_USER="${SUDO_USER:-$(logname 2>/dev/null || echo "$USER")}"
+
+# ── Vérification / installation de Rust ──────────────────────────────────────
+
+ensure_rust() {
+    # Cherche cargo dans l'ordre : rustup (home utilisateur) puis PATH système
+    local cargo_bin
+    cargo_bin="$(sudo -u "$BUILD_USER" bash -c 'source "$HOME/.cargo/env" 2>/dev/null; command -v cargo' 2>/dev/null || command -v cargo 2>/dev/null || true)"
+
+    if [[ -z "$cargo_bin" ]]; then
+        warn "cargo introuvable — installation de Rust via rustup…"
+        install_rustup
+        return
+    fi
+
+    local rustc_ver
+    rustc_ver="$("$cargo_bin" --version 2>/dev/null | awk '{print $2}')"
+    # Compare les versions (major.minor.patch)
+    if ! version_ge "$rustc_ver" "$MIN_RUSTC"; then
+        warn "rustc $rustc_ver détecté — version minimale requise : $MIN_RUSTC"
+        warn "Mise à jour via rustup…"
+        install_rustup
+    else
+        info "rustc $rustc_ver — OK"
+    fi
+}
+
+version_ge() {
+    # Retourne 0 si $1 >= $2 (format X.Y.Z)
+    printf '%s\n%s\n' "$2" "$1" | sort -V -C
+}
+
+install_rustup() {
+    if sudo -u "$BUILD_USER" bash -c 'command -v rustup &>/dev/null'; then
+        info "rustup déjà présent — mise à jour du toolchain stable…"
+        sudo -u "$BUILD_USER" bash -c 'source "$HOME/.cargo/env" 2>/dev/null; rustup update stable'
+    else
+        info "Installation de rustup pour l'utilisateur '$BUILD_USER'…"
+        sudo -u "$BUILD_USER" bash -c \
+            'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable 2>&1'
+    fi
+    info "Rust stable installé."
+}
+
+ensure_rust
 
 # ── Compilation ───────────────────────────────────────────────────────────────
 
 step "Compilation du binaire (release)…"
 # Lance cargo en tant que l'utilisateur appelant (pas root) pour éviter de
 # polluer le cache Cargo de root ou les permissions du répertoire target/.
-BUILD_USER="${SUDO_USER:-$(logname 2>/dev/null || echo "$USER")}"
-sudo -u "$BUILD_USER" cargo build --release --bin "$BINARY_NAME"
+sudo -u "$BUILD_USER" bash -c \
+    'source "$HOME/.cargo/env" 2>/dev/null; cargo build --release --bin '"$BINARY_NAME"
 
 # ── Installation du binaire ───────────────────────────────────────────────────
 
