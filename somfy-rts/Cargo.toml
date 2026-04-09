@@ -3,17 +3,20 @@ name = "somfy-rts"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# Versions épinglées exactement (=) pour garantir la compatibilité avec rustc 1.63.
+# Les crates dépendants ont des MSRV qui augmentent régulièrement; les versions
+# libres (ex: "1.4.0") permettent à cargo de résoudre vers des versions trop récentes
+# lors d'une reconstruction sans Cargo.lock.
 [dependencies]
-bytes = "1.4.0"
-futures = "0.3.28"
-hex = "0.4.3"
-log = "0.4.17"
-serde = { version = "1.0.159", features = ["derive"] }
-serde_json = "1.0.95"
-thiserror = "1.0.40"
-tokio = { version = "1.27.0", features = ["io-util"] }
+bytes        = "=1.4.0"
+futures      = "=0.3.28"
+hex          = "=0.4.3"
+log          = "=0.4.17"
+serde        = { version = "=1.0.159", features = ["derive"] }
+serde_json   = "=1.0.95"
+thiserror    = "=1.0.40"
+tokio        = { version = "=1.27.0", features = ["io-util"] }
 tokio-serial = "=5.4.4"
-# nix 0.27+ exige rustc 1.64+; on plafonne explicitement pour éviter une
-# mise à jour automatique de tokio-serial/serialport vers une version plus récente.
-nix = ">=0.24, <0.27"
+# nix 0.27+ exige rustc 1.64+ — plafonné pour éviter toute résolution vers des
+# versions plus récentes via tokio-serial/mio-serial/serialport.
+nix          = ">=0.24, <0.27"

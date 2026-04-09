@@ -3,9 +3,8 @@ name = "somfy-rts-cli"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+# Versions épinglées exactement (=) pour garantir la compatibilité avec rustc 1.63.
 [dependencies]
-clap = { version = "3.2", features = ["derive"] }
+clap      = { version = "=3.2.25", features = ["derive"] }
 somfy-rts = { path = "../somfy-rts" }
-tokio = { version = "1.27.0", features = ["macros", "rt-multi-thread"] }
+tokio     = { version = "=1.27.0", features = ["macros", "rt-multi-thread"] }
