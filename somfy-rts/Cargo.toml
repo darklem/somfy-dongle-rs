@@ -13,4 +13,7 @@ serde = { version = "1.0.159", features = ["derive"] }
 serde_json = "1.0.95"
 thiserror = "1.0.40"
 tokio = { version = "1.27.0", features = ["io-util"] }
-tokio-serial = "5.4.4"
+tokio-serial = "=5.4.4"
+# nix 0.27+ exige rustc 1.64+; on plafonne explicitement pour éviter une
+# mise à jour automatique de tokio-serial/serialport vers une version plus récente.
+nix = ">=0.24, <0.27"
